@@ -15,16 +15,16 @@
     <script>
         var myGamePiece;
         var myObstacles = [];
-        var myScore;
+        var myScoreText;
         var ScoreTotal = 0;
         var obstaclesSpeed = 5.3;
         var intervalObstacles = 30;
-        var gameOver;
+        var gameOverText;
 
         function startGame() {
             myGamePiece = new component(20, 20, "red", 10, 120);
-            myScore = new component("30px", "Consolas", "black", 280, 40, "text");
-            gameOver = new component("30px", "Consolas", "black", 170, 135, "text");
+            myScoreText = new component("30px", "Consolas", "black", 10, 25, "text");
+            gameOverText = new component("30px", "Consolas", "black", 170, 135, "text");
             myGameArea.start();
         }
 
@@ -73,13 +73,11 @@
             this.newPos = function() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.hit();
+                this.checkIfPlayerTouchTheCanvasLimits();
             }
-            this.hit = function() {
-                var rockbottom = myGameArea.canvas.height - this.height;
-
-                if (this.y > rockbottom) {
-                    this.y = rockbottom;
+            this.checkIfPlayerTouchTheCanvasLimits = function() {
+                if (this.y > myGameArea.canvas.height - this.height) {
+                    this.y = myGameArea.canvas.height - this.height;
                 }
                 if (this.y < 0) {
                     this.y = 0;
@@ -118,49 +116,18 @@
             var x, height, gap, minHeight, maxHeight, minGap, maxGap, pass;
             for (i = 0; i < myObstacles.length; i += 1) {
                 if (myGamePiece.verifyCrashwithAndUpdateScore(myObstacles[i])) {
-                    // return;
                     if (ScoreTotal == 0) {
-                        gameOver.text = "GAME OVER!";
-                        gameOver.update();
+                        gameOverText.text = "GAME OVER!";
+                        gameOverText.update();
                         return;
                     }
                     myObstacles.splice([i], 1);
                     ScoreTotal -= 1;
                 }
             }
-            if (ScoreTotal < 100) {
-                obstaclesSpeed = 6
-                intervalObstacles = 15
-            }
-            if (ScoreTotal >= 100 && ScoreTotal < 200) {
-                obstaclesSpeed = 8;
-                intervalObstacles = 10;
-            }
-            if (ScoreTotal > 200) {
-                obstaclesSpeed = 10;
-                intervalObstacles = 9;
-            }
-            if (ScoreTotal > 300) {
-                obstaclesSpeed = 12;
-                intervalObstacles = 7;
-            }
+            verifyWichLevelGameIs();
             myGameArea.clear();
-            myGamePiece.speedX = 0;
-            myGamePiece.speedY = 0;
-            if (myGameArea.key && myGameArea.key == 37) {
-                myGamePiece.speedX = -5;
-            }
-            if (myGameArea.key && myGameArea.key == 39) {
-                myGamePiece.speedX = 5;
-            }
-            if (myGameArea.key && myGameArea.key == 38) {
-                myGamePiece.speedY = -5;
-            }
-            if (myGameArea.key && myGameArea.key == 40) {
-                myGamePiece.speedY = 5;
-            }
-            myGamePiece.newPos();
-            myGamePiece.update();
+            verifyWichKeyWasPressedToMovePlayer();
             myGameArea.frameNo += 1;
             if (myGameArea.frameNo == 1 || everyinterval(intervalObstacles)) {
                 x = myGameArea.canvas.width;
@@ -178,8 +145,46 @@
 
                 myObstacles[i].update();
             }
-            myScore.text = "SCORE: " + ScoreTotal;
-            myScore.update();
+            myScoreText.text = "SCORE: " + ScoreTotal;
+            myScoreText.update();
+            myGamePiece.newPos();
+            myGamePiece.update();
+        }
+
+        function verifyWichLevelGameIs() {
+            if (ScoreTotal < 100) {
+                obstaclesSpeed = 6
+                intervalObstacles = 15
+            }
+            if (ScoreTotal >= 100 && ScoreTotal < 200) {
+                obstaclesSpeed = 8;
+                intervalObstacles = 10;
+            }
+            if (ScoreTotal > 200) {
+                obstaclesSpeed = 10;
+                intervalObstacles = 9;
+            }
+            if (ScoreTotal > 300) {
+                obstaclesSpeed = 12;
+                intervalObstacles = 7;
+            }
+        }
+
+        function verifyWichKeyWasPressedToMovePlayer() {
+            myGamePiece.speedX = 0;
+            myGamePiece.speedY = 0;
+            if (myGameArea.key && myGameArea.key == 37) {
+                myGamePiece.speedX = -5;
+            }
+            if (myGameArea.key && myGameArea.key == 39) {
+                myGamePiece.speedX = 5;
+            }
+            if (myGameArea.key && myGameArea.key == 38) {
+                myGamePiece.speedY = -5;
+            }
+            if (myGameArea.key && myGameArea.key == 40) {
+                myGamePiece.speedY = 5;
+            }
             myGamePiece.newPos();
             myGamePiece.update();
         }
